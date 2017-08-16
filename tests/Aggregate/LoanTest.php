@@ -33,4 +33,26 @@ class LoanTest extends TestCase
 
         $this->assertTrue($loan->isOpened($now));
     }
+
+    public function testDateIsPastLoanLife()
+    {
+        $startDate = new \DateTimeImmutable('2017-01-01');
+        $endDate = new \DateTimeImmutable('2018-01-01');
+        $now = new \DateTimeImmutable('2018-05-01');
+
+        $loan = new Loan($startDate, $endDate);
+
+        $this->assertfalse($loan->isOpened($now));
+    }
+
+    public function testDateIsBeforeLoanLife()
+    {
+        $startDate = new \DateTimeImmutable('2017-01-01');
+        $endDate = new \DateTimeImmutable('2018-01-01');
+        $now = new \DateTimeImmutable('2016-05-01');
+
+        $loan = new Loan($startDate, $endDate);
+
+        $this->assertfalse($loan->isOpened($now));
+    }
 }

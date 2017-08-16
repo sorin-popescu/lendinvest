@@ -51,4 +51,9 @@ class Loan
     {
         return $this->tranches->getTranche($trancheId);
     }
+
+    public function isOpened(\DateTimeImmutable $date)
+    {
+        return $date > $this->startDate && $date < $this->endDate;
+    }
 }
