@@ -4,7 +4,9 @@ namespace Test\LendInvest\Aggregate;
 
 use LendInvest\Aggregate\Loan;
 use LendInvest\Entity\Tranche;
+use LendInvest\ValueObject\Currency;
 use LendInvest\ValueObject\InterestRate;
+use LendInvest\ValueObject\Money;
 use LendInvest\ValueObject\TrancheId;
 use PHPUnit\Framework\TestCase;
 
@@ -16,10 +18,13 @@ class LoanTest extends TestCase
         $endDate = new \DateTimeImmutable('2018-01-01');
         $loan = new Loan($startDate, $endDate);
 
-        $tranche = new Tranche(new TrancheId('A'), new InterestRate(3), 1000);
+        $currency = new Currency('GBP');
+        $amount = new Money(1000, $currency);
+        $interestRate = new InterestRate(3);
+        $trancheId = new TrancheId('A');
 
+        $tranche = new Tranche($trancheId, $interestRate, $amount);
         $loan->addTranche($tranche);
-
         $this->assertSame($tranche, $loan->getTranche(new TrancheId('A')));
     }
 
