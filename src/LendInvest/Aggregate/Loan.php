@@ -43,6 +43,10 @@ class Loan
         $this->tranches->add($tranche);
     }
 
+    /**
+     * @param TrancheId $trancheId
+     * @return Tranche
+     */
     public function getTranche(TrancheId $trancheId)
     {
         return $this->tranches->getTranche($trancheId);
