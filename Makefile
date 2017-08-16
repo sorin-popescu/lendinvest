@@ -20,7 +20,7 @@ phpunit:
 ## Test Coverage HTML
 coverage:
 	@echo "${GREEN}Tests with coverage${RESET}"
-	@php bin/phpunit --coverage-html /tmp/coverage
+	@php bin/phpunit --coverage-html coverage
 
 ## Prints this help
 help:
