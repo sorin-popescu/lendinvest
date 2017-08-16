@@ -2,6 +2,8 @@
 
 namespace LendInvest\ValueObject;
 
+use InvalidArgumentException;
+
 class Money
 {
     /** @var  float */
@@ -18,7 +20,7 @@ class Money
     public function __construct(float $amount, Currency $currency)
     {
         if ($amount < 0) {
-            throw new NegativeFundsException();
+            throw new InvalidArgumentException();
         }
         $this->amount = $amount;
         $this->currency = $currency;
@@ -38,21 +40,13 @@ class Money
     }
 
     /**
-     * @return string
-     */
-    public function getMoney()
-    {
-        return sprintf("%s%01.2f", $this->currency, $this->amount);
-    }
-
-    /**
      * @param Money $other
      * @return Money
      */
     public function add(Money $other)
     {
         if ($other->getCurrency()->isNot($this->getCurrency())) {
-            throw new \InvalidArgumentException('Cannot add because currencies do not match');
+            throw new InvalidArgumentException('Cannot add because currencies do not match');
         }
         $amount = $this->amount + $other->getAmount();
 
@@ -66,7 +60,7 @@ class Money
     public function deduct(Money $other)
     {
         if ($other->getCurrency()->isNot($this->getCurrency())) {
-            throw new \InvalidArgumentException('Cannot add because currencies do not match');
+            throw new InvalidArgumentException('Cannot add because currencies do not match');
         }
         $amount = $this->amount - $other->getAmount();
 
@@ -107,7 +101,7 @@ class Money
     private function compareWith(Money $other): int
     {
         if ($other->getCurrency()->isNot($this->getCurrency())) {
-            throw new \InvalidArgumentException('Cannot compare because currencies do not match');
+            throw new InvalidArgumentException('Cannot compare because currencies do not match');
         }
         return $this->getAmount() <=> $other->getAmount();
     }

@@ -32,12 +32,4 @@ class Currency
     {
         return $this->code === $other->code;
     }
-
-    /**
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return (string)$this->code;
-    }
 }

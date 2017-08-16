@@ -24,7 +24,7 @@ class Tranche
     private $amountToInvest;
 
     /**
-     * @var int
+     * @var Money
      */
     private $amountInvested;
 
@@ -39,7 +39,23 @@ class Tranche
         $this->identifier = $trancheId;
         $this->interestRate = $interestRate;
         $this->amountToInvest = $amountToInvest;
-        $this->amountInvested = 0;
+        $this->amountInvested = new Money(0, $amountToInvest->getCurrency());
+    }
+
+    /**
+     * @param Money $amount
+     */
+    public function addInvestment(Money $amount)
+    {
+        $this->amountInvested = $this->amountInvested->add($amount);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasReachedMaximumAmountToInvest()
+    {
+         return $this->amountToInvest->isLessThan($this->amountInvested);
     }
 
     /**

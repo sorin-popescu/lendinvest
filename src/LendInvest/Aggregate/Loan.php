@@ -4,17 +4,21 @@ namespace LendInvest\Aggregate;
 
 use LendInvest\Entity\Tranche;
 use LendInvest\Helper\TrancheList;
+use LendInvest\ValueObject\Money;
 use LendInvest\ValueObject\TrancheId;
+use DateTimeImmutable;
+use RuntimeException;
+use InvalidArgumentException;
 
 class Loan
 {
     /**
-     * @var \DateTimeImmutable
+     * @var DateTimeImmutable
      */
     private $startDate;
 
     /**
-     * @var \DateTimeImmutable
+     * @var DateTimeImmutable
      */
     private $endDate;
 
@@ -25,10 +29,10 @@ class Loan
 
     /**
      * Loan constructor.
-     * @param \DateTimeImmutable $startDate
-     * @param \DateTimeImmutable $endDate
+     * @param DateTimeImmutable $startDate
+     * @param DateTimeImmutable $endDate
      */
-    public function __construct(\DateTimeImmutable $startDate, \DateTimeImmutable $endDate)
+    public function __construct(DateTimeImmutable $startDate, DateTimeImmutable $endDate)
     {
         $this->startDate = $startDate;
         $this->endDate = $endDate;
@@ -43,16 +47,30 @@ class Loan
         $this->tranches->add($tranche);
     }
 
-    /**
-     * @param TrancheId $trancheId
-     * @return Tranche
-     */
-    public function getTranche(TrancheId $trancheId)
+    public function invest(TrancheId $trancheId, Money $amount, DateTimeImmutable $date)
     {
-        return $this->tranches->getTranche($trancheId);
+        if (!$this->isOpened($date)) {
+            throw new RuntimeException();
+        }
+
+        if (!$this->tranches->hasTranche($trancheId)) {
+            throw new InvalidArgumentException()   ;
+        }
+
+        $tranche = $this->tranches->getTranche($trancheId);
+
+        if ($tranche->hasReachedMaximumAmountToInvest()) {
+            throw new RuntimeException();
+        }
+
+        $tranche->addInvestment($amount);
     }
 
-    public function isOpened(\DateTimeImmutable $date)
+    /**
+     * @param DateTimeImmutable $date
+     * @return bool
+     */
+    public function isOpened(DateTimeImmutable $date): bool
     {
         return $date > $this->startDate && $date < $this->endDate;
     }
