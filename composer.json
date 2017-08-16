@@ -1,0 +1,19 @@
+{
+    "name": "sorin/lendinvest",
+    "authors": [
+        {
+            "name": "Sorin Popescu",
+            "email": "popescusorinbogdan@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "mockery/mockery": "^0.9.9",
+        "phpunit/phpunit": "^6.3"
+    },
+    "config": {
+        "bin-dir": "bin",
+        "preferred-install": "dist",
+        "sort-packages": true
+    }
+}
