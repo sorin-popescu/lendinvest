@@ -86,6 +86,15 @@ class Money
     }
 
     /**
+     * @param Money $other
+     * @return bool
+     */
+    public function isEqual(Money $other): bool
+    {
+        return $this->compareWith($other) === 0;
+    }
+
+    /**
      * @param float $amount
      * @return Money
      */

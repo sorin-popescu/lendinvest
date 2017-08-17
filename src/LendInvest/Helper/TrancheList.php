@@ -24,8 +24,8 @@ class TrancheList
         return $this->array[$trancheId->__toString()];
     }
 
-    public function hasTranche(TrancheId $trancheId): bool
+    public function doesNotHave(TrancheId $trancheId): bool
     {
-        return array_key_exists($trancheId->__toString(), $this->array);
+        return !array_key_exists($trancheId->__toString(), $this->array);
     }
 }

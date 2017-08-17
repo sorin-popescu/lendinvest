@@ -5,6 +5,7 @@ namespace LendInvest\Entity;
 use LendInvest\ValueObject\InterestRate;
 use LendInvest\ValueObject\Money;
 use LendInvest\ValueObject\TrancheId;
+use RuntimeException;
 
 class Tranche
 {
@@ -44,18 +45,19 @@ class Tranche
 
     /**
      * @param Money $amount
+     * @param Investor $investor
+     * @param \DateTimeImmutable $date
      */
-    public function addInvestment(Money $amount)
+    public function addInvestment(Money $amount, Investor $investor, \DateTimeImmutable $date)
     {
-        $this->amountInvested = $this->amountInvested->add($amount);
-    }
+        if ($this->amountToInvest->isLessThan($this->amountInvested) ||
+            $this->amountToInvest->isEqual($this->amountInvested)) {
+            throw new RuntimeException("The invested amount is greater than the total amount.");
+        }
 
-    /**
-     * @return bool
-     */
-    public function hasReachedMaximumAmountToInvest()
-    {
-         return $this->amountToInvest->isLessThan($this->amountInvested);
+        $investor->deduct($amount);
+
+        $this->amountInvested = $this->amountInvested->add($amount);
     }
 
     /**

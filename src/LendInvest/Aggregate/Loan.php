@@ -2,6 +2,7 @@
 
 namespace LendInvest\Aggregate;
 
+use LendInvest\Entity\Investor;
 use LendInvest\Entity\Tranche;
 use LendInvest\Helper\TrancheList;
 use LendInvest\ValueObject\Money;
@@ -47,31 +48,28 @@ class Loan
         $this->tranches->add($tranche);
     }
 
-    public function invest(TrancheId $trancheId, Money $amount, DateTimeImmutable $date)
+    public function invest(TrancheId $trancheId, Investor $investor, Money $amount, DateTimeImmutable $date)
     {
-        if (!$this->isOpened($date)) {
-            throw new RuntimeException();
+        if ($this->isClosed($date)) {
+            throw new RuntimeException("Loan is closed.");
         }
 
-        if (!$this->tranches->hasTranche($trancheId)) {
-            throw new InvalidArgumentException()   ;
+        if ($this->tranches->doesNotHave($trancheId)) {
+            throw new InvalidArgumentException("Tranche doesn't exist.");
         }
 
-        $tranche = $this->tranches->getTranche($trancheId);
+        $this->tranches->getTranche($trancheId)->addInvestment($amount, $investor, $date);
 
-        if ($tranche->hasReachedMaximumAmountToInvest()) {
-            throw new RuntimeException();
-        }
-
-        $tranche->addInvestment($amount);
+        return true;
     }
 
     /**
      * @param DateTimeImmutable $date
      * @return bool
      */
-    public function isOpened(DateTimeImmutable $date): bool
+    public function isClosed(DateTimeImmutable $date): bool
     {
-        return $date > $this->startDate && $date < $this->endDate;
+        return $date->getTimestamp() < $this->startDate->getTimestamp()
+            || $date->getTimestamp() > $this->endDate->getTimestamp();
     }
 }

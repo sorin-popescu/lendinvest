@@ -3,6 +3,7 @@
 namespace Test\LendInvest\Aggregate;
 
 use LendInvest\Aggregate\Loan;
+use LendInvest\Entity\Investor;
 use LendInvest\Entity\Tranche;
 use LendInvest\ValueObject\Currency;
 use LendInvest\ValueObject\InterestRate;
@@ -15,63 +16,60 @@ use DateTimeImmutable;
 
 class LoanTest extends TestCase
 {
-    public function testTrancheHasReachedMaximumAmount()
+    public function testYouCanNotInvestAfterEndDate()
     {
-        $startDate = new DateTimeImmutable('2017-01-01');
-        $investmentDate = new DateTimeImmutable('2017-05-01');
-        $endDate = new DateTimeImmutable('2018-01-01');
-        $loan = new Loan($startDate, $endDate);
-
-        $currency = new Currency('GBP');
-        $amount = new Money(1000, $currency);
-        $interestRate = new InterestRate(3);
-        $trancheId = new TrancheId('A');
-
-        $tranche = new Tranche($trancheId, $interestRate, $amount);
-        $loan->addTranche($tranche);
-        $loan->invest($trancheId, $amount, $investmentDate);
-        $this->assertTrue($tranche->hasReachedMaximumAmountToInvest());
-    }
-
-
-    public function testTrancheHasExceededMaximumAmount()
-    {
-        $startDate = new DateTimeImmutable('2017-01-01');
-        $investmentDate = new DateTimeImmutable('2017-05-01');
-        $endDate = new DateTimeImmutable('2018-01-01');
-        $loan = new Loan($startDate, $endDate);
-
-        $currency = new Currency('GBP');
-        $amount = new Money(1000, $currency);
-        $interestRate = new InterestRate(3);
-        $trancheId = new TrancheId('A');
-
-        $tranche = new Tranche($trancheId, $interestRate, $amount);
-        $loan->addTranche($tranche);
-        $loan->invest($trancheId, $amount, $investmentDate);
         $this->expectException(RuntimeException::class);
-        $loan->invest($trancheId, $amount, $investmentDate);
+
+        $startDate = new DateTimeImmutable('2017-01-01');
+        $investmentDate = new DateTimeImmutable('2019-05-01');
+        $endDate = new DateTimeImmutable('2018-01-01');
+        $loan = new Loan($startDate, $endDate);
+        $currency = new Currency('GBP');
+        $amount = new Money(1000, $currency);
+        $trancheId = new TrancheId('A');
+        $investor = new Investor('Investor 1', $amount);
+
+        $loan->addTranche(new Tranche($trancheId, new InterestRate(3), $amount));
+
+        $loan->invest($trancheId, $investor, $amount, $investmentDate);
     }
 
-    public function testTrancheCanHaveMultipleInvestments()
+    public function testYouCanNotInvestBeforeStartDate()
+    {
+        $this->expectException(RuntimeException::class);
+
+        $startDate = new DateTimeImmutable('2017-01-01');
+        $investmentDate = new DateTimeImmutable('2016-05-01');
+        $endDate = new DateTimeImmutable('2018-01-01');
+
+        $loan = new Loan($startDate, $endDate);
+        $currency = new Currency('GBP');
+        $amount = new Money(1000, $currency);
+        $trancheId = new TrancheId('A');
+        $investor = new Investor('Investor 1', $amount);
+
+        $loan->addTranche(new Tranche($trancheId, new InterestRate(3), $amount));
+
+        $loan->invest($trancheId, $investor, $amount, $investmentDate);
+    }
+
+    public function testCanInvest()
     {
         $startDate = new DateTimeImmutable('2017-01-01');
         $investmentDate = new DateTimeImmutable('2017-05-01');
         $endDate = new DateTimeImmutable('2018-01-01');
+
         $loan = new Loan($startDate, $endDate);
-
         $currency = new Currency('GBP');
-        $investmentAmount = new Money(100, $currency);
         $amount = new Money(1000, $currency);
-        $interestRate = new InterestRate(3);
         $trancheId = new TrancheId('A');
+        $investor = new Investor('Investor 1', $amount);
 
-        $tranche = new Tranche($trancheId, $interestRate, $amount);
-        $loan->addTranche($tranche);
-        $loan->invest($trancheId, $investmentAmount, $investmentDate);
-        $loan->invest($trancheId, $investmentAmount, $investmentDate);
+        $loan->addTranche(new Tranche($trancheId, new InterestRate(3), $amount));
 
-        $this->assertFalse($tranche->hasReachedMaximumAmountToInvest());
+        $result = $loan->invest($trancheId, $investor, $amount, $investmentDate);
+
+        $this->assertTrue($result);
     }
 
     public function testInvalidTranche()
@@ -85,22 +83,8 @@ class LoanTest extends TestCase
         $currency = new Currency('GBP');
         $amount = new Money(1000, $currency);
         $trancheId = new TrancheId('A');
+        $investor = new Investor('Investor 1', $amount);
 
-        $loan->invest($trancheId, $amount, $investmentDate);
-    }
-
-    public function testLoanIsClosed()
-    {
-        $this->expectException(RuntimeException::class);
-
-        $startDate = new DateTimeImmutable('2017-01-01');
-        $investmentDate = new DateTimeImmutable('2019-05-01');
-        $endDate = new DateTimeImmutable('2018-01-01');
-        $loan = new Loan($startDate, $endDate);
-        $currency = new Currency('GBP');
-        $amount = new Money(1000, $currency);
-        $trancheId = new TrancheId('A');
-
-        $loan->invest($trancheId, $amount, $investmentDate);
+        $loan->invest($trancheId,$investor ,$amount, $investmentDate);
     }
 }
