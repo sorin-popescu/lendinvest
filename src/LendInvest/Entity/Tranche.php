@@ -2,7 +2,9 @@
 
 namespace LendInvest\Entity;
 
+use LendInvest\Helper\InvestmentList;
 use LendInvest\ValueObject\InterestRate;
+use LendInvest\ValueObject\Investment;
 use LendInvest\ValueObject\Money;
 use LendInvest\ValueObject\TrancheId;
 use RuntimeException;
@@ -30,6 +32,11 @@ class Tranche
     private $amountInvested;
 
     /**
+     * @var InvestmentList
+     */
+    private $investments;
+
+    /**
      * Tranche constructor.
      * @param TrancheId $trancheId
      * @param InterestRate $interestRate
@@ -41,6 +48,7 @@ class Tranche
         $this->interestRate = $interestRate;
         $this->amountToInvest = $amountToInvest;
         $this->amountInvested = new Money(0, $amountToInvest->getCurrency());
+        $this->investments = new InvestmentList();
     }
 
     /**
@@ -58,6 +66,7 @@ class Tranche
         $investor->deduct($amount);
 
         $this->amountInvested = $this->amountInvested->add($amount);
+        $this->investments->add(new Investment($investor, $amount, $date));
     }
 
     /**

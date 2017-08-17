@@ -18,8 +18,8 @@ class InterestRate
     /**
      * @return float
      */
-    public function getDailyRate()
+    public function getDailyRate(): float
     {
-        return $this->rate / 30;
+        return $this->rate / 100 * 12 / 365;
     }
 }
