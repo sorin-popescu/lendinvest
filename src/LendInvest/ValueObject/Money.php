@@ -67,6 +67,13 @@ class Money
         return $this->newMoney($amount);
     }
 
+    public function addInterest(float $interest)
+    {
+        $amount = round($this->amount * $interest, 2);
+
+        return $this->newMoney($amount);
+    }
+
     /**
      * @param Money $other
      * @return bool

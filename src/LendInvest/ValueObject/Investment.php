@@ -21,8 +21,27 @@ class Investment
 
     public function calculateInterest(\DateTimeImmutable $date, InterestRate $interestRate)
     {
+        $interest = $this->getInterestToBePaid($date, $interestRate);
+
+        $increase = $this->amount->addInterest($interest);
+
+        $this->investor->deposit($increase);
+    }
+
+    public function getDate(): \DateTimeImmutable
+    {
+        return $this->date;
+    }
+
+    private function getInterestToBePaid(\DateTimeImmutable $date, InterestRate $interestRate): float
+    {
+        $daysInTheMonth = $date->format('t');
         $investedDays = $date->diff($this->date)->format("%a");
 
-        return $investedDays * $interestRate->getDailyRate();
+        if ($daysInTheMonth > $investedDays) {
+            return ($investedDays + 1) * $interestRate->getDailyRate($daysInTheMonth);
+        }
+
+        return $daysInTheMonth * $interestRate->getDailyRate($daysInTheMonth);
     }
 }

@@ -87,4 +87,48 @@ class LoanTest extends TestCase
 
         $loan->invest($trancheId,$investor ,$amount, $investmentDate);
     }
+
+    public function testItCanCalculateInterest()
+    {
+        $startDate = new DateTimeImmutable('2017-01-01');
+        $investmentDate = new DateTimeImmutable('2017-05-01');
+        $endDate = new DateTimeImmutable('2018-01-01');
+
+        $loan = new Loan($startDate, $endDate);
+        $currency = new Currency('GBP');
+        $amount = new Money(1000, $currency);
+
+        $trancheId = new TrancheId('A');
+        $investor = new Investor('Investor 1', $amount);
+
+        $loan->addTranche(new Tranche($trancheId, new InterestRate(3), $amount));
+
+        $loan->invest($trancheId, $investor, $amount, $investmentDate);
+
+        $loan->calculateInterest(new DateTimeImmutable('2017-06-01'));
+
+        $this->assertEquals(30, $investor->getBalance()->getAmount());
+    }
+
+    public function testItThrowsExceptionWhenCalculatingInterestForClosedLoan()
+    {
+        $this->expectException(RuntimeException::class);
+
+        $startDate = new DateTimeImmutable('2017-01-01');
+        $investmentDate = new DateTimeImmutable('2017-05-01');
+        $endDate = new DateTimeImmutable('2018-01-01');
+
+        $loan = new Loan($startDate, $endDate);
+        $currency = new Currency('GBP');
+        $amount = new Money(1000, $currency);
+
+        $trancheId = new TrancheId('A');
+        $investor = new Investor('Investor 1', $amount);
+
+        $loan->addTranche(new Tranche($trancheId, new InterestRate(3), $amount));
+
+        $loan->invest($trancheId, $investor, $amount, $investmentDate);
+
+        $loan->calculateInterest(new DateTimeImmutable('2018-06-01'));
+    }
 }

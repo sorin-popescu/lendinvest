@@ -69,6 +69,17 @@ class Tranche
         $this->investments->add(new Investment($investor, $amount, $date));
     }
 
+    public function calculateInterest(\DateTimeImmutable $date)
+    {
+        $lastDay = $date->modify('last day of last month');
+        /** @var Investment $investment */
+        foreach ($this->investments->getInvestments() as $investment) {
+            if ($lastDay > $investment->getDate()) {
+                $investment->calculateInterest($lastDay, $this->interestRate);
+            }
+        }
+    }
+
     /**
      * @return string
      */

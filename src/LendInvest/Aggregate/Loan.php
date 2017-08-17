@@ -26,7 +26,7 @@ class Loan
     /**
      * @var TrancheList
      */
-    private $tranches;
+    public $tranches;
 
     /**
      * Loan constructor.
@@ -48,6 +48,13 @@ class Loan
         $this->tranches->add($tranche);
     }
 
+    /**
+     * @param TrancheId $trancheId
+     * @param Investor $investor
+     * @param Money $amount
+     * @param DateTimeImmutable $date
+     * @return bool
+     */
     public function invest(TrancheId $trancheId, Investor $investor, Money $amount, DateTimeImmutable $date)
     {
         if ($this->isClosed($date)) {
@@ -61,6 +68,18 @@ class Loan
         $this->tranches->getTranche($trancheId)->addInvestment($amount, $investor, $date);
 
         return true;
+    }
+
+    public function calculateInterest(DateTimeImmutable $date)
+    {
+        if ($this->isClosed($date)){
+            throw new RuntimeException("Loan is closed.");
+        }
+
+        /** @var Tranche $tranche */
+        foreach ($this->tranches->getTranches() as $tranche) {
+            $tranche->calculateInterest($date);
+        }
     }
 
     /**
