@@ -7,7 +7,7 @@ WHITE  := $(shell tput -Txterm setaf 7)
 YELLOW := $(shell tput -Txterm setaf 3)
 RESET  := $(shell tput -Txterm sgr0)
 
-test: phpunit
+test: phpunit phpstan phpcs lint
 
 install:
 	composer install --prefer-dist --no-interaction --no-suggest
@@ -16,6 +16,21 @@ install:
 phpunit:
 	@echo "${GREEN}Unit tests${RESET}"
 	@php bin/phpunit
+
+## Run PHPStan
+phpstan:
+	@echo "${GREEN}PHPStan${RESET}"
+	@php bin/phpstan analyse -l 0 src/
+
+## Run PHP code sniffer
+phpcs:
+	@echo "${GREEN}PHP Code Sniffer${RESET}"
+	@php bin/phpcs -p --standard=psr2 --colors src/
+
+## PHP Parallel Lint
+lint:
+	@echo "${GREEN}PHP Parallel Lint${RESET}"
+	@php bin/parallel-lint src/ tests/
 
 ## Test Coverage HTML
 coverage:

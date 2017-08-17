@@ -72,7 +72,7 @@ class Loan
 
     public function calculateInterest(DateTimeImmutable $date)
     {
-        if ($this->isClosed($date)){
+        if ($this->isClosed($date)) {
             throw new RuntimeException("Loan is closed.");
         }
 
